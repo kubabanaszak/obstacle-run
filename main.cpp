@@ -1,8 +1,14 @@
-#include <iostream>
+#include <SFML/Graphics.hpp>
+#include <SFML/Window.hpp>
+#include "klasy.h"
 #include <vector>
-using namespace std;
+#include <iostream>
+#include <ctime>
+#include <cstdlib>
+#include <sstream>
+#include <fstream>
+
 int main()
 {
-    cout<<"Hello World!"<<endl;
-    cout << "Hello!"<< endl;
+    return 0;
 }
