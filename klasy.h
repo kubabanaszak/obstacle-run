@@ -11,9 +11,11 @@
 
 class Game
 {
-public:
-
 private:
+
+public:
+Game();
+~Game();
 
 };
 
@@ -22,12 +24,17 @@ class Player
 private:
 
 public:
+Player();
+~Player();
 
 };
 
 class Text
 {
 protected:
+
+public:
+
 
 };
 
@@ -36,6 +43,8 @@ class Menu
 private:
 
 public:
+Menu();
+~Menu();
 
 };
 
@@ -44,6 +53,8 @@ class Score : public Text
 private:
 
 public:
+Score();
+~Score();
    
 };
 
@@ -58,32 +69,42 @@ public:
 class Up : public Obstacle
 {
 public:
+Up();
+~Up();
 
 };
 
 class Down : public Obstacle
 {
 public:
+Down();
+~Down();
 
 };
 
 class Both : public Obstacle
 {
 public:
+Both();
+~Both();
 
 };
 
 class HighScore
 {
-public:
-
 private:
+
+public:
+HighScore();
+~HighScore();
 
 };
 
 class PowerUp
 {
 public:
+PowerUp();
+~PowerUp();
 
 };
 
