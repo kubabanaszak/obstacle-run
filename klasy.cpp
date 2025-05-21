@@ -8,9 +8,6 @@
 #include <sstream>
 #include <fstream>
 
-Game::Game() {};
-Game::~Game() {};
-
 Player::Player() 
 {
     shape.setSize(sf::Vector2f(100, 100));
@@ -20,9 +17,10 @@ Player::Player()
     t[3].loadFromFile("wslizg.png");
     t[4].loadFromFile("emoji.png");
     shape.setTexture(&t[0]);
-};
+}
 
-Player::~Player() {};
+Player::~Player() {}
+
 void Player::setPosition(float x, float y) {shape.setPosition(x, y);}
 
 sf::Vector2f Player::getPosition() {return shape.getPosition();}
@@ -51,31 +49,140 @@ void Player::textureChange()
         textureClock.restart();
     }
 }
+
 void Player::endTexture() {shape.setTexture(&t[4]);}
 
-Text::Text() {};
-Text::~Text() {};
+Text::Text(float s, float x, float y)
+{
+    size = s;
+    font.loadFromFile("C:/Windows/Fonts/Arial.ttf");
+    text.setFont(font);
+    text.setCharacterSize(size);
+    text.setFillColor(sf::Color::White);
+    text.setPosition(x, y);
+}
 
-Menu::Menu() {};
-Menu::~Menu() {};
+Text::~Text() {}
 
-Score::Score() : Text() {};
+void Text::draw(sf::RenderWindow& window) { window.draw(text); }
+
+Menu::Menu() {}
+Menu::~Menu() {}
+
+Score::Score() : Text(24, 10, 850) {}
+
 Score::~Score() {};
 
-Obstacle::Obstacle(){};
-Obstacle::~Obstacle() {};
+void Score::Showscore(sf::Clock& scoreClock)
+{
+    elapsed = scoreClock.getElapsedTime();
+    std::ostringstream oss;
+    oss << "Score: " << elapsed.asMilliseconds();
+    text.setString(oss.str());
+}
 
-Up::Up() : Obstacle() {};
-Up::~Up() {};
+int Score::getScore() { return elapsed.asMilliseconds(); }
 
-Down::Down() : Obstacle() {};
-Down::~Down() {};
+Obstacle::Obstacle(){}
+Obstacle::~Obstacle() {}
 
-Both::Both() : Obstacle() {};
-Both::~Both() {};
+Up::Up() : Obstacle() {}
+Up::~Up() {}
 
-HighScore::HighScore() {};
-HighScore::~HighScore() {};
+Down::Down() : Obstacle() {}
+Down::~Down() {}
 
-PowerUp::PowerUp() {};
-PowerUp::~PowerUp() {};
+Both::Both() : Obstacle() {}
+Both::~Both() {}
+
+HighScore::HighScore() {}
+HighScore::~HighScore() {}
+
+PowerUp::PowerUp() {}
+PowerUp::~PowerUp() {}
+
+Game::Game() {}
+Game::~Game() {}
+
+void Game::generateID() 
+{
+    std::ifstream file("baza.txt");
+    if (!file.is_open()) {
+        currentID = 1;
+        return;
+    }
+    std::string lastLine;
+    std::string line;
+    while (std::getline(file, line)) {
+        if (!line.empty())
+            lastLine = line;
+    }
+    file.close();
+    if (lastLine.empty()) {
+        currentID = 1;
+        return;
+    }
+    std::istringstream iss(lastLine);
+    int lastID;
+    if (iss >> lastID) {
+        currentID = lastID + 1;
+    }
+    else {
+        currentID = 1; 
+    }
+}
+
+void Game::getData() 
+{
+    player.setID(currentID);
+    player.nazwa = menu.getPlayerName();
+    player.wynik = score.wynik;
+}
+
+void Game::savePlayerData() 
+{
+    if (!gameStarted || !gameOver) return;
+    fstream file("baza.txt", ios::app);
+    if (file.is_open()) {
+        file << player;
+        file.close();
+    }
+}
+
+void Game::loadScores() 
+{
+    fstream file("wyniki.txt", ios::in);
+    if (file.is_open()) {
+        std::string line;
+        while (getline(file, line))
+        {
+            double d_line = std::stod(line);
+            topScores.emplace_back(d_line);
+        }
+        file.close();
+    }
+    else {
+        for (int i = 0; i < 3; i++)
+        {
+            topScores.emplace_back(0);
+        }
+    }
+}
+
+void Game::sortScores()
+{
+    topScores.emplace_back(player.wynik);
+    std::sort(topScores.begin(), topScores.end());
+}
+
+void Game::saveScores() 
+{
+    if (!gameStarted || !gameOver) return;
+    fstream plik("wyniki.txt", ios::out);
+    if (plik.is_open()) {
+        for (int i = 3; i > 0; i--) {
+            plik << topScores[i] << "\n";
+        }
+        plik.close();
+    }
+}
