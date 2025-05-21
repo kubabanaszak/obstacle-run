@@ -9,16 +9,6 @@
 #include <sstream>
 #include <fstream>
 
-class Game
-{
-private:
-
-public:
-Game();
-~Game();
-
-};
-
 class Player
 {
 private:
@@ -83,11 +73,13 @@ string getPlayerName();
 class Score : public Text
 {
 private:
+sf::Time elapsed;
 
 public:
 int wynik;
 Score();
 ~Score();
+void Showscore(sf::Clock&);
 int getScore();
    
 };
@@ -153,4 +145,29 @@ PowerUp();
 
 };
 
+class Game
+{
+private:
+std::string GameName;
+float width, height;
+Score score;
+Player player;
+sf::RenderWindow window;
+sf::Clock scoreClock;
+int currentID;
+std::vector<double> topScores;
+bool gameOver;
+bool gameStarted;
+
+public:
+Game();
+~Game();
+void generateID();
+void getData();
+void savePlayerData();
+void loadScores();
+void sortScores();
+void saveScores();
+
+};
 #endif // KLASY_H
