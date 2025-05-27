@@ -9,64 +9,99 @@
 #include <sstream>
 #include <fstream>
 
+
 class Player
 {
 private:
-sf::Texture t[5];
-sf::RectangleShape shape;
-int ID;
-float switchTime = 0.2;
-bool useFirstTexture = true;
+    sf::Texture t[5];
+    sf::RectangleShape shape;
+    int ID;
+    sf::Clock textureClock;
+    float switchTime = 0.2;
+    bool useFirstTexture = true;
 
 public:
-string nazwa;
-double wynik;
-Player();
-~Player();
-void setID(int);
-int getID();
-void setPosition(float, float);
-sf::Vector2f getPosition();
-sf::RectangleShape& getShape();
-void textureChange();
-void endTexture();
-void draw(sf::RenderWindow&);
+    std::string nazwa;
+    double wynik;
+    Player();
+    ~Player();
+    void setID(int);
+    int getID();
+    void setPosition(float, float);
+    sf::Vector2f getPosition();
+    sf::RectangleShape& getShape();
+    void textureChange();
+    void endTexture();
+    void draw(sf::RenderWindow&);
+    friend std::ostream& operator<<(std::ostream&, const Player&);
 
 };
 
 class Text
 {
 protected:
-sf::Font font;
-sf::Text text;
-float size;
+    sf::Font font;
+    sf::Text text;
+    float size;
 
 public:
-Text(float, float, float);
-Text(float, float, float, string);
-virtual ~Text();
-virtual void draw(sf::RenderWindow&);
+    Text(float, float, float);
+    Text(float, float, float, std::string);
+    virtual ~Text();
+    virtual void draw(sf::RenderWindow&);
+    void setString(const std::string&);
+    void SetFillColor(const sf::Color&);
+    sf::FloatRect getGlobalBounds() const;
+    void setPosition(float x, float y);
 
 };
+
+class HighScores 
+{
+private:
+    std::vector<Text*> scores;
+
+public:
+    HighScores();
+    ~HighScores();
+    void draw(sf::RenderWindow&);
+
+};
+
+
+enum class MenuEvent
+{
+    None,
+    StartGameClicked,
+    HighScoresClicked,
+    ExitClicked,
+    BackClicked,
+    NameEntered,
+    NameInput,
+
+}
 
 class Menu
 {
 private:
-sf::Font font;
-sf::Text item[itemCount];
-sf::Text title;
-sf::Text playerText;
-sf::Text EnterName;
-sf::RectangleShape inputBox;
-string playerName;
-bool buttonClicked = false;
+    Text* item[4];
+    Text* title;
+    Text* playerText;
+    Text* EnterName;
+    sf::RectangleShape inputBox;
+    std::string playerName;
+    HighScores* highScores;
 
 public:
-void draw(sf::RenderWindow&);
-void drawBox(sf::RenderWindow&);
-Menu();
-~Menu();
-string getPlayerName();
+    Menu();
+    ~Menu();
+    void draw(sf::RenderWindow&);
+    void drawBox(sf::RenderWindow&);
+    MenuEvent processEvent(sf::RenderWindow&, sf::Event&);
+    bool isButtonClicked();
+    bool showHighScores = false;
+    bool buttonClicked = false;
+    std::string getPlayerName();
 
 };
 
@@ -92,7 +127,7 @@ float width, height;
 string textureFile;
     
 public:
-Obstacle(float, float, const string&);
+Obstacle(float, float, const std::string&);
 virtual ~Obstacle();
 virtual void setPosition(float, float);
 virtual void draw(sf::RenderWindow&);
@@ -124,24 +159,6 @@ public:
 Both();
 ~Both();
 bool checkCollision(Player&);
-
-};
-
-class HighScore
-{
-private:
-
-public:
-HighScore();
-~HighScore();
-
-};
-
-class PowerUp
-{
-public:
-PowerUp();
-~PowerUp();
 
 };
 
