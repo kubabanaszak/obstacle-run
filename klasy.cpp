@@ -233,17 +233,62 @@ void Score::Showscore(sf::Clock& scoreClock)
 
 int Score::getScore() { return elapsed.asMilliseconds(); }
 
-Obstacle::Obstacle(){}
-Obstacle::~Obstacle() {}
+Obstacle::Obstacle(float width, float height, const string& textureFile) : width(width), height(height), textureFile(textureFile)
+{
+    shape.setSize(sf::Vector2f(width, height));
+    texture.loadFromFile(textureFile);
+    shape.setTexture(&texture);
+}
 
-Up::Up() : Obstacle() {}
-Up::~Up() {}
+Obstacle::~Obstacle() {};
 
-Down::Down() : Obstacle() {}
+void Obstacle::setPosition(float x, float y) { shape.setPosition(x, y); }
+
+sf::Vector2f Obstacle::getPosition() { return shape.getPosition(); }
+
+void Obstacle::draw(sf::RenderWindow& window) { window.draw(shape); }
+
+Up::Up() : Obstacle(100, 100, "przeszkoda_g.png") {};
+
+Up::~Up() {};
+
+bool Up::checkCollision(Player& player)
+{
+    if (shape.getGlobalBounds().intersects(player.getShape().getGlobalBounds()))
+    {
+        if (!sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+            return true;
+    }
+    return false;
+}
+
+Down::Down() : Obstacle(100, 150, "przeszkoda_d.png") {}
+
 Down::~Down() {}
 
-Both::Both() : Obstacle() {}
-Both::~Both() {}
+bool Down::checkCollision(Player& player)
+{
+    if (shape.getGlobalBounds().intersects(player.getShape().getGlobalBounds()))
+    {
+        if (!sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+            return true;
+    }
+    return false;
+}
+
+Both::Both() : Obstacle(100, 100, "przeszkoda.png") {};
+
+Both::~Both() {};
+
+bool Both::checkCollision(Player& player)
+{
+    if (shape.getGlobalBounds().intersects(player.getShape().getGlobalBounds()))
+    {
+        if (!(sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::S)))
+            return true;
+    }
+    return false;
+}
 
 HighScore::HighScore() {}
 HighScore::~HighScore() {}
