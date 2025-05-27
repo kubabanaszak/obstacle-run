@@ -52,6 +52,12 @@ void Player::textureChange()
 
 void Player::endTexture() {shape.setTexture(&t[4]);}
 
+std::ostream& operator<<(std::ostream& os, const Player& player)
+{
+    os << player.ID << " " << player.nazwa << " " << player.wynik << "\n";
+    return os;
+}
+
 Text::Text(float s, float x, float y)
 {
     size = s;
@@ -286,7 +292,7 @@ void Game::getData()
 void Game::savePlayerData() 
 {
     if (!gameStarted || !gameOver) return;
-    fstream file("baza.txt", ios::app);
+    std::fstream file("baza.txt", std::ios::app);
     if (file.is_open()) {
         file << player;
         file.close();
@@ -295,7 +301,7 @@ void Game::savePlayerData()
 
 void Game::loadScores() 
 {
-    fstream file("wyniki.txt", ios::in);
+    std::fstream file("wyniki.txt", std::ios::in);
     if (file.is_open()) {
         std::string line;
         while (getline(file, line))
@@ -322,7 +328,7 @@ void Game::sortScores()
 void Game::saveScores() 
 {
     if (!gameStarted || !gameOver) return;
-    fstream plik("wyniki.txt", ios::out);
+    std::fstream plik("wyniki.txt", std::ios::out);
     if (plik.is_open()) {
         for (int i = 3; i > 0; i--) {
             plik << topScores[i] << "\n";
