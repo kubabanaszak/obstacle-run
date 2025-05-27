@@ -128,6 +128,7 @@ string textureFile;
     
 public:
 Obstacle(float, float, const std::string&);
+sf::RectangleShape shape;
 virtual ~Obstacle();
 virtual void setPosition(float, float);
 virtual void draw(sf::RenderWindow&);
