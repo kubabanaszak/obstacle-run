@@ -62,12 +62,156 @@ Text::Text(float s, float x, float y)
     text.setPosition(x, y);
 }
 
+Text::Text(float s, float x, float y, std::string disp)
+{
+    size = s;
+    font.loadFromFile("C:/Windows/Fonts/Arial.ttf");
+    text.setFont(font);
+    text.setCharacterSize(size);
+    text.setFillColor(sf::Color::White);
+    text.setPosition(x, y);
+    text.setString(disp);
+}
+
 Text::~Text() {}
 
 void Text::draw(sf::RenderWindow& window) { window.draw(text); }
 
-Menu::Menu() {}
-Menu::~Menu() {}
+void Text::setString (const std::string& str) { text.setString(str); }
+
+void Text::SetFillColor(const sf::Color& color) { text.setFillColor(color); }
+
+sf::FloatRect Text::getGlobalBounds() const { return text.getGlobalBounds(); }
+
+void Text::setPosition(float x, float y) { text.setPosition(x, y); }
+
+HighScores::HighScores() 
+{
+    std::ifstream file("wyniki.txt");
+    std::string line;
+    int y = 250; 
+    while (std::getline(file, line)) 
+    {
+        std::stringstream ss(line);
+        int score;
+        if (ss >> score) 
+        {
+            std::string display = "Score: " + std::to_string(score);
+            Text* text = new Text(30, 200, y, display);
+            scores.push_back(text);
+            y += 100; 
+        }
+    }
+}
+
+HighScores::~HighScores() 
+{
+    for (auto t : scores) delete t;
+}
+
+void HighScores::draw(sf::RenderWindow& window) 
+{
+    for (auto t : scores) 
+    {
+        t->draw(window);
+    }
+}
+
+Menu::Menu() 
+{
+    item[0] = new Text(30, 225, 400, "Start game");
+    item[1] = new Text(30, 225, 500, "Highscores");
+    item[2] = new Text(30, 265, 600, "Exit");
+    item[3] = new Text(30, 2000, 2000, "Back");
+    title = new Text(60, 125, 100, "Obstacle run");
+    EnterName = new Text(30, 2000, 2000, "Enter your name:");
+    playerText = new Text(24, 2000, 2000, " ");
+    playerText->SetFillColor(sf::Color::Black);
+    highScores = new HighScores();
+    inputBox.setSize(sf::Vector2f(300, 50));
+    inputBox.setPosition(2000, 2000);
+    inputBox.setFillColor(sf::Color::White);
+}
+
+Menu::~Menu() 
+{
+    for (int i = 0; i < 4; i++) delete item[i];
+    delete title;
+    delete EnterName;
+    delete playerText;
+    delete highScores;
+}
+
+void Menu::draw(sf::RenderWindow& window)
+{
+    if (showHighScores) 
+    {
+        item[3]->setPosition(260, 525);
+        highScores->draw(window);
+        item[2]->draw(window);
+        item[3]->draw(window);
+        return;
+    }
+    title->draw(window);
+    EnterName->draw(window);
+    for (int i = 0; i < 3; i++) item[i]->draw(window);
+    drawBox(window);
+    playerText->draw(window);
+}
+
+void Menu::drawBox(sf::RenderWindow& window) 
+{
+    window.draw(inputBox);
+}
+
+MenuEvent Menu::processEvent(sf::RenderWindow& window, sf::Event& event)
+{
+    if (event.type == sf::Event::MouseButtonPressed)
+    {
+        sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+        if (item[0]->getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos)))
+            return MenuEvent::StartGameClicked;
+
+        if (item[1]->getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos)))
+            return MenuEvent::HighScoresClicked;
+
+        if (item[2]->getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos)))
+            return MenuEvent::ExitClicked;
+
+        if (item[3]->getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos)))
+            return MenuEvent::BackClicked;
+    }
+    if (buttonClicked)
+    {
+        item[0]->setPosition(2000, 2000);
+        item[1]->setPosition(2000, 2000);
+        title->setPosition(2000, 2000);
+        EnterName->setPosition(185, 275);
+        playerText->setPosition(155, 360);
+        inputBox.setPosition(150, 350);
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Return))
+        {
+            if (!playerName.empty())
+                return MenuEvent::NameEntered;
+        }
+    }
+    if (event.type == sf::Event::TextEntered && buttonClicked)
+    {
+        if (event.text.unicode < 128)
+        {
+            if (event.text.unicode == '\b' && !playerName.empty())
+                playerName.pop_back();
+            else if (event.text.unicode != '\b')
+                playerName += static_cast<char>(event.text.unicode);
+            playerText->setString(playerName);
+        }
+    }
+    return MenuEvent::None;
+}
+
+bool Menu::isButtonClicked() { return buttonClicked; }
+
+std::string Menu::getPlayerName() { return playerName; }
 
 Score::Score() : Text(24, 10, 850) {}
 
