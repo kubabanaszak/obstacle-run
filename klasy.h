@@ -163,29 +163,49 @@ bool checkCollision(Player&);
 
 };
 
-class Game
-{
+class Game {
 private:
-std::string GameName;
-float width, height;
-Score score;
-Player player;
-sf::RenderWindow window;
-sf::Clock scoreClock;
-int currentID;
-std::vector<double> topScores;
-bool gameOver;
-bool gameStarted;
+    std::string GameName;
+    float width, height;
+
+    Player player;
+    Menu menu;
+    Score score;
+    Text gameOverText;
+    Text exitText;
+    sf::Texture backgroundTexture;
+    sf::Sprite background;
+
+    sf::RenderWindow window;
+    sf::Clock clock;
+    sf::Clock scoreClock;
+
+    std::vector<std::pair<Obstacle*, sf::Clock>> obstacles;
+
+    int currentID;
+    std::vector<double> topScores;
+
+    bool gameOver;
+    bool moveLeft;
+    bool moveRight;
+    bool gameStarted;
+
+    void handleEvents();
+    void update();
+    void render();
+    void movement();
+    void los();
 
 public:
-Game();
-~Game();
-void generateID();
-void getData();
-void savePlayerData();
-void loadScores();
-void sortScores();
-void saveScores();
+    Game(float, float, std::string);
+    ~Game();
+    void run();
+    void generateID();
+    void getData();
+    void savePlayerData();
+    void loadScores();
+    void sortScores();
+    void saveScores();
 
 };
 #endif // KLASY_H
