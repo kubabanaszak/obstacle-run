@@ -290,14 +290,95 @@ bool Both::checkCollision(Player& player)
     return false;
 }
 
-HighScore::HighScore() {}
-HighScore::~HighScore() {}
 
-PowerUp::PowerUp() {}
-PowerUp::~PowerUp() {}
-
-Game::Game() {}
+Game::Game(float width, float height, std::string GameName)
+    : width(width), height(height), GameName(GameName),
+    gameOver(false), moveLeft(false), moveRight(false),
+    gameStarted(false), gameOverText(50, 150, 400, "GAME OVER"),
+    exitText(40, 260, 500, "Exit")
+    {
+    window.create(sf::VideoMode(width, height), GameName, sf::Style::Close);
+    player.setPosition(250, 600);
+    backgroundTexture.loadFromFile("tlo.png");
+    background.setTexture(backgroundTexture);
+    }
 Game::~Game() {}
+
+void Game::run(){}
+
+void Game::handleEvents() 
+{
+    sf::Event event;
+    while (window.pollEvent(event)) 
+    {
+        if (event.type == sf::Event::Closed)
+            window.close();
+        if (!gameStarted)
+        {
+            MenuEvent menuEvent = menu.processEvent(window, event);
+            switch (menuEvent) {
+            case MenuEvent::StartGameClicked:
+                menu.buttonClicked = true;
+                break;
+            case MenuEvent::HighScoresClicked:
+                menu.showHighScores = true;
+                break;
+            case MenuEvent::ExitClicked:
+                window.close();
+                break;
+            case MenuEvent::BackClicked:
+                menu.showHighScores = false;
+                break;
+            case MenuEvent::NameEntered:
+                gameStarted = true;
+                break;
+            default:
+                break;
+            }
+        }
+        else if (gameOver)
+        {
+            if (event.type == sf::Event::MouseButtonPressed)
+            {
+                sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+                if (exitText.getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos)))
+                {
+                    window.close();
+                }
+            }
+        }
+    }
+}
+
+void Game::update(){}
+
+void Game::render(){}
+
+void Game::movement() 
+{
+    sf::Vector2f pos = player.getPosition();
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+        player.setPosition(pos.x, 550);
+    else
+        player.setPosition(pos.x, 600);
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !moveLeft) 
+    {
+        if (pos.x == 250) player.setPosition(50, pos.y);
+        else if (pos.x == 450) player.setPosition(250, pos.y);
+        moveLeft = true;
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && !moveRight) 
+    {
+        if (pos.x == 250) player.setPosition(450, pos.y);
+        else if (pos.x == 50) player.setPosition(250, pos.y);
+        moveRight = true;
+    }
+    if (!sf::Keyboard::isKeyPressed(sf::Keyboard::A)) moveLeft = false;
+    if (!sf::Keyboard::isKeyPressed(sf::Keyboard::D)) moveRight = false;
+}
+
+void Game::los(){}
 
 void Game::generateID() 
 {
