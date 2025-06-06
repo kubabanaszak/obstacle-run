@@ -290,7 +290,6 @@ bool Both::checkCollision(Player& player)
     return false;
 }
 
-
 Game::Game(float width, float height, std::string GameName)
     : width(width), height(height), GameName(GameName),
     gameOver(false), moveLeft(false), moveRight(false),
@@ -350,9 +349,53 @@ void Game::handleEvents()
     }
 }
 
-void Game::update(){}
+void Game::update() 
+{
+    if (!gameStarted) 
+    {
+        scoreClock.restart();
+        return;
+    }
+    if (!gameOver) 
+    {
+        movement();
+        score.Showscore(scoreClock);
+        los();
+        for (auto& pair : obstacles) 
+        {
+            if (pair.first->checkCollision(player)) 
+            {
+                gameOver = true;
+                break;
+            }
+        }
+    }
+}
 
-void Game::render(){}
+void Game::render() 
+{
+    window.clear();
+    if (!gameStarted) 
+    {
+        menu.draw(window);
+    }
+    else {
+        window.draw(background);
+        for (auto& pair : obstacles)
+            pair.first->draw(window);
+        score.draw(window);
+        player.draw(window);
+        player.textureChange();
+        if (gameOver) 
+        {
+            player.endTexture();
+            gameOverText.draw(window);
+            score.wynik = score.getScore();
+            exitText.draw(window);
+        }
+    }
+    window.display();
+}
 
 void Game::movement() 
 {
