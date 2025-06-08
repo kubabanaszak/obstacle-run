@@ -21,8 +21,8 @@ private:
     bool useFirstTexture = true;
 
 public:
-    std::string nazwa;
-    double wynik;
+    std::string name;
+    double result;
     Player();
     ~Player();
     void setID(int);
