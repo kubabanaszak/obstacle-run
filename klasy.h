@@ -22,7 +22,7 @@ private:
 
 public:
     std::string name;
-    double result;
+    double results;
     Player();
     ~Player();
     void setID(int);
@@ -111,7 +111,7 @@ private:
 sf::Time elapsed;
 
 public:
-int wynik;
+int result;
 Score();
 ~Score();
 void Showscore(sf::Clock&);
