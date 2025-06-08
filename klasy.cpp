@@ -11,10 +11,10 @@
 Player::Player() 
 {
     shape.setSize(sf::Vector2f(100, 100));
-    t[0].loadFromFile("bieg_1.png");
-    t[1].loadFromFile("bieg_2.png");
-    t[2].loadFromFile("skok.png");
-    t[3].loadFromFile("wslizg.png");
+    t[0].loadFromFile("run_1.png");
+    t[1].loadFromFile("run_2.png");
+    t[2].loadFromFile("jump.png");
+    t[3].loadFromFile("slide.png");
     t[4].loadFromFile("emoji.png");
     shape.setTexture(&t[0]);
 }
@@ -54,7 +54,7 @@ void Player::endTexture() {shape.setTexture(&t[4]);}
 
 std::ostream& operator<<(std::ostream& os, const Player& player)
 {
-    os << player.ID << " " << player.nazwa << " " << player.wynik << "\n";
+    os << player.ID << " " << player.name << " " << player.results << "\n";
     return os;
 }
 
@@ -93,7 +93,12 @@ void Text::setPosition(float x, float y) { text.setPosition(x, y); }
 
 HighScores::HighScores() 
 {
-    std::ifstream file("wyniki.txt");
+    std::ifstream file("results.txt");
+    if (!file.is_open())
+    {
+        std::cerr << "Failed to open file: results.txt" << std::endl;
+        return;
+    }
     std::string line;
     int y = 250; 
     while (std::getline(file, line)) 
@@ -248,7 +253,7 @@ sf::Vector2f Obstacle::getPosition() { return shape.getPosition(); }
 
 void Obstacle::draw(sf::RenderWindow& window) { window.draw(shape); }
 
-Up::Up() : Obstacle(100, 100, "przeszkoda_g.png") {};
+Up::Up() : Obstacle(100, 100, "obstacle_up.png") {};
 
 Up::~Up() {};
 
@@ -262,7 +267,7 @@ bool Up::checkCollision(Player& player)
     return false;
 }
 
-Down::Down() : Obstacle(100, 150, "przeszkoda_d.png") {}
+Down::Down() : Obstacle(100, 150, "obstacle_down.png") {}
 
 Down::~Down() {}
 
@@ -276,7 +281,7 @@ bool Down::checkCollision(Player& player)
     return false;
 }
 
-Both::Both() : Obstacle(100, 100, "przeszkoda.png") {};
+Both::Both() : Obstacle(100, 100, "obstacle.png") {};
 
 Both::~Both() {};
 
@@ -294,11 +299,11 @@ Game::Game(float width, float height, std::string GameName)
     : width(width), height(height), GameName(GameName),
     gameOver(false), moveLeft(false), moveRight(false),
     gameStarted(false), gameOverText(50, 150, 400, "GAME OVER"),
-    exitText(40, 260, 500, "Exit")
+    exitText(40, 260, 750, "EXIT")
     {
     window.create(sf::VideoMode(width, height), GameName, sf::Style::Close);
     player.setPosition(250, 600);
-    backgroundTexture.loadFromFile("tlo.png");
+    backgroundTexture.loadFromFile("background.png");
     background.setTexture(backgroundTexture);
     }
 Game::~Game() {}
@@ -390,7 +395,7 @@ void Game::render()
         {
             player.endTexture();
             gameOverText.draw(window);
-            score.wynik = score.getScore();
+            score.result = score.getScore();
             exitText.draw(window);
         }
     }
@@ -425,28 +430,34 @@ void Game::los(){}
 
 void Game::generateID() 
 {
-    std::ifstream file("baza.txt");
-    if (!file.is_open()) {
+    std::ifstream file("base.txt");
+    if (!file.is_open()) 
+    {
+        std::cerr << "failed to open file: base.txt" << std::endl;
         currentID = 1;
         return;
     }
     std::string lastLine;
     std::string line;
-    while (std::getline(file, line)) {
+    while (std::getline(file, line)) 
+    {
         if (!line.empty())
             lastLine = line;
     }
     file.close();
-    if (lastLine.empty()) {
+    if (lastLine.empty()) 
+    {
         currentID = 1;
         return;
     }
     std::istringstream iss(lastLine);
     int lastID;
-    if (iss >> lastID) {
+    if (iss >> lastID) 
+    {
         currentID = lastID + 1;
     }
-    else {
+    else 
+    {
         currentID = 1; 
     }
 }
@@ -454,15 +465,21 @@ void Game::generateID()
 void Game::getData() 
 {
     player.setID(currentID);
-    player.nazwa = menu.getPlayerName();
-    player.wynik = score.wynik;
+    player.name = menu.getPlayerName();
+    player.results = score.result;
 }
 
 void Game::savePlayerData() 
 {
     if (!gameStarted || !gameOver) return;
-    std::fstream file("baza.txt", std::ios::app);
-    if (file.is_open()) {
+    std::fstream file("base.txt", std::ios::app);
+    if (!file.is_open()) 
+    {
+        std::cerr << "failed to open file: base.txt" << std::endl;
+        return;
+    }
+    else
+    {
         file << player;
         file.close();
     }
@@ -470,8 +487,9 @@ void Game::savePlayerData()
 
 void Game::loadScores() 
 {
-    std::fstream file("wyniki.txt", std::ios::in);
-    if (file.is_open()) {
+    std::fstream file("results.txt", std::ios::in);
+    if (file.is_open()) 
+    {
         std::string line;
         while (getline(file, line))
         {
@@ -480,9 +498,11 @@ void Game::loadScores()
         }
         file.close();
     }
-    else {
+    else 
+    {
         for (int i = 0; i < 3; i++)
         {
+            std::cerr << "failed to open file: results.txt" << std::endl;
             topScores.emplace_back(0);
         }
     }
@@ -497,11 +517,18 @@ void Game::sortScores()
 void Game::saveScores() 
 {
     if (!gameStarted || !gameOver) return;
-    std::fstream plik("wyniki.txt", std::ios::out);
-    if (plik.is_open()) {
-        for (int i = 3; i > 0; i--) {
-            plik << topScores[i] << "\n";
+    std::fstream file("results.txt", std::ios::out);
+    if (!file.is_open()) 
+    {
+        std::cerr << "failed to open file: results.txt" << std::endl;
+        return;
+    }
+    else
+    {
+        for (int i = 3; i > 0; i--) 
+        {
+            file << topScores[i] << "\n";
         }
-        plik.close();
+        file.close();
     }
 }
