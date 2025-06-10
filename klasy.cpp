@@ -13,11 +13,11 @@ Player::Player()
 
 Player::~Player() {}
 
-void Player::setPosition(float x, float y) {shape.setPosition(x, y);}
+void Player::setPosition(float x, float y) {shape.setPosition(x, y); }
 
-sf::Vector2f Player::getPosition() {return shape.getPosition();}
+sf::Vector2f Player::getPosition() {return shape.getPosition(); }
 
-sf::RectangleShape& Player::getShape() {return shape;}
+sf::RectangleShape& Player::getShape() {return shape; }
 
 void Player::textureChange()
 {
@@ -29,8 +29,10 @@ void Player::textureChange()
     {
         shape.setTexture(&t[3]);
     }
-    if (textureClock.getElapsedTime().asSeconds() >= switchTime) {
-        if (useFirstTexture) {
+    if (textureClock.getElapsedTime().asSeconds() >= switchTime) 
+    {
+        if (useFirstTexture) 
+        {
             shape.setTexture(&t[1]);
         }
          else
@@ -42,7 +44,13 @@ void Player::textureChange()
     }
 }
 
-void Player::endTexture() {shape.setTexture(&t[4]);}
+void Player::endTexture() {shape.setTexture(&t[4]); }
+
+void Player::draw(sf::RenderWindow& window) { window.draw(shape); }
+
+void Player::setID(int id) { ID = id; }
+
+int Player::getID() { return ID; }
 
 std::ostream& operator<<(std::ostream& os, const Player& player)
 {
@@ -259,9 +267,9 @@ bool Up::checkCollision(Player& player)
     return false;
 }
 
-Down::Down() : Obstacle(100, 150, "obstacle_down.png") {}
+Down::Down() : Obstacle(100, 150, "obstacle_down.png") {};
 
-Down::~Down() {}
+Down::~Down() {};
 
 bool Down::checkCollision(Player& player)
 {
@@ -298,6 +306,7 @@ Game::Game(float width, float height, std::string GameName)
     backgroundTexture.loadFromFile("background.png");
     background.setTexture(backgroundTexture);
     }
+
 Game::~Game() 
 {
     for (auto& pair : obstacles) delete pair.first;
@@ -429,7 +438,43 @@ void Game::movement()
     if (!sf::Keyboard::isKeyPressed(sf::Keyboard::D)) moveRight = false;
 }
 
-void Game::los(){}
+void Game::los()
+{
+    float spawnInterval = 0.7;
+    float obstacleLifespan = 9;
+    float moveSpeed = 0.3;
+    if (clock.getElapsedTime().asSeconds() >= spawnInterval)
+    {
+        int lane = rand() % 3;
+        int type = rand() % 3;
+        float x = (lane == 0) ? 50 : (lane == 1) ? 250 : 450;
+        Obstacle* newObstacle = nullptr;
+        if (type == 0) newObstacle = new Up();
+        else if (type == 1) newObstacle = new Down();
+        else newObstacle = new Both();
+        if (newObstacle) 
+        {
+            newObstacle->setPosition(x, -200);
+            obstacles.push_back( {newObstacle, sf::Clock()} );
+        }
+        clock.restart();
+    }
+
+    for (auto it = obstacles.begin(); it != obstacles.end();)
+    {
+        float moveAmount = moveSpeed * it->second.getElapsedTime().asSeconds();
+        sf::Vector2f currentPos = it->first->getPosition();
+        it->first->setPosition(currentPos.x, currentPos.y + moveAmount);
+        if (it->second.getElapsedTime().asSeconds() >= obstacleLifespan)
+        {
+            delete it->first;
+            it = obstacles.erase(it);
+        }
+        else {
+            ++it;
+        }
+    }
+}
 
 void Game::generateID() 
 {
