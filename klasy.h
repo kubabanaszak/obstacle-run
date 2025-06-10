@@ -8,7 +8,8 @@
 #include <cstdlib>
 #include <sstream>
 #include <fstream>
-
+#include <algorithm>
+#include <string>
 
 class Player
 {
@@ -79,7 +80,7 @@ enum class MenuEvent
     NameEntered,
     NameInput,
 
-}
+};
 
 class Menu
 {
@@ -124,13 +125,14 @@ class Obstacle
 protected:
 sf::Texture texture;
 float width, height;
-string textureFile;
+std::string textureFile;
     
 public:
 Obstacle(float, float, const std::string&);
 sf::RectangleShape shape;
 virtual ~Obstacle();
 virtual void setPosition(float, float);
+virtual sf::Vector2f getPosition();
 virtual void draw(sf::RenderWindow&);
 virtual bool checkCollision(Player& player) = 0;
 
@@ -166,8 +168,8 @@ bool checkCollision(Player&);
 class Game {
 private:
     std::string GameName;
-    float width, height;
-
+    float width;
+    float height;
     Player player;
     Menu menu;
     Score score;
