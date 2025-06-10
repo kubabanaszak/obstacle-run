@@ -1,12 +1,4 @@
 #include "klasy.h"
-#include <SFML/Graphics.hpp>
-#include <SFML/Window.hpp>
-#include <vector>
-#include <iostream>
-#include <ctime>
-#include <cstdlib>
-#include <sstream>
-#include <fstream>
 
 Player::Player() 
 {
@@ -238,7 +230,7 @@ void Score::Showscore(sf::Clock& scoreClock)
 
 int Score::getScore() { return elapsed.asMilliseconds(); }
 
-Obstacle::Obstacle(float width, float height, const string& textureFile) : width(width), height(height), textureFile(textureFile)
+Obstacle::Obstacle(float width, float height, const std::string& textureFile) : width(width), height(height), textureFile(textureFile)
 {
     shape.setSize(sf::Vector2f(width, height));
     texture.loadFromFile(textureFile);
@@ -306,9 +298,20 @@ Game::Game(float width, float height, std::string GameName)
     backgroundTexture.loadFromFile("background.png");
     background.setTexture(backgroundTexture);
     }
-Game::~Game() {}
+Game::~Game() 
+{
+    for (auto& pair : obstacles) delete pair.first;
+}
 
-void Game::run(){}
+void Game::run() 
+{
+    while (window.isOpen()) 
+    {
+        handleEvents();
+        update();
+        render();
+    }
+}
 
 void Game::handleEvents() 
 {
@@ -510,7 +513,7 @@ void Game::loadScores()
 
 void Game::sortScores()
 {
-    topScores.emplace_back(player.wynik);
+    topScores.emplace_back(player.results);
     std::sort(topScores.begin(), topScores.end());
 }
 
