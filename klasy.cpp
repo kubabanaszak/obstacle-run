@@ -61,7 +61,7 @@ std::ostream& operator<<(std::ostream& os, const Player& player)
 Text::Text(float s, float x, float y)
 {
     size = s;
-    font.loadFromFile("C:/Windows/Fonts/Arial.ttf");
+    font.loadFromFile("arial.ttf");
     text.setFont(font);
     text.setCharacterSize(size);
     text.setFillColor(sf::Color::White);
@@ -71,7 +71,7 @@ Text::Text(float s, float x, float y)
 Text::Text(float s, float x, float y, std::string disp)
 {
     size = s;
-    font.loadFromFile("C:/Windows/Fonts/Arial.ttf");
+    font.loadFromFile("arial.ttf");
     text.setFont(font);
     text.setCharacterSize(size);
     text.setFillColor(sf::Color::White);
